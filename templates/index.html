@@ -15,10 +15,11 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
       padding: 3rem 1rem;
     }
 
-    .wl-root { max-width: 480px; width: 100%; }
+    .wl-root { max-width: 860px; width: 100%; }
 
     .wl-eyebrow {
       font-family: 'DM Mono', monospace;
@@ -36,6 +37,25 @@
       line-height: 1.2;
       margin-bottom: 2rem;
     }
+
+    .wl-layout {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .wl-left {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .wl-right {
+      flex: 1;
+      min-width: 220px;
+      display: none;
+    }
+
+    .wl-right.visible { display: block; }
 
     .wl-card {
       background: #fff;
@@ -101,9 +121,6 @@
     .wl-btn:hover { background: #0F6E56; }
     .wl-btn:active { transform: scale(0.98); }
 
-    .wl-result { display: none; margin-top: 1.5rem; }
-    .wl-result.visible { display: block; }
-
     .wl-result-meta {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
@@ -118,7 +135,7 @@
 
     .ladder-wrap { display: flex; justify-content: center; padding: 8px 0 16px; }
 
-    .ladder { position: relative; width: 220px; }
+    .ladder { position: relative; width: 180px; }
 
     .ladder-rail-left,
     .ladder-rail-right {
@@ -151,12 +168,12 @@
 
     .ladder-word {
       font-family: 'DM Mono', monospace;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
       color: #1a1a1a;
       background: #fff;
       border-radius: 6px;
-      padding: 4px 12px;
+      padding: 4px 10px;
       text-align: center;
       white-space: nowrap;
     }
@@ -165,6 +182,11 @@
     .ladder-word.last  { color: #26215C; background: #EEEDFE; }
 
     .ladder-diff { font-family: 'DM Mono', monospace; font-size: 10px; color: #aaa; letter-spacing: 0.05em; }
+
+    @media (max-width: 600px) {
+      .wl-layout { flex-direction: column; }
+      .wl-right { min-width: unset; }
+    }
   </style>
 </head>
 <body>
@@ -172,32 +194,36 @@
     <p class="wl-eyebrow">COS 335</p>
     <h1 class="wl-title">Word Ladder<br>Solver</h1>
 
-    <div class="wl-card">
-      <div class="wl-row">
-        <div class="wl-field">
-          <label class="wl-label" for="begin">Begin</label>
-          <input class="wl-input" id="begin" placeholder="hit" />
+    <div class="wl-layout">
+      <div class="wl-left">
+        <div class="wl-card">
+          <div class="wl-row">
+            <div class="wl-field">
+              <label class="wl-label" for="begin">Begin</label>
+              <input class="wl-input" id="begin" placeholder="hit" />
+            </div>
+            <div class="wl-field">
+              <label class="wl-label" for="end">End</label>
+              <input class="wl-input" id="end" placeholder="cog" />
+            </div>
+          </div>
+          <div class="wl-field">
+            <label class="wl-label" for="words">Word list</label>
+            <input class="wl-input" id="words" placeholder="hot, dot, dog, lot, log, cog" />
+          </div>
+          <div class="wl-divider">
+            <div class="wl-divider-line"></div>
+            <span class="wl-divider-text">comma separated</span>
+            <div class="wl-divider-line"></div>
+          </div>
+          <button class="wl-btn" onclick="solve()">Solve ladder</button>
         </div>
-        <div class="wl-field">
-          <label class="wl-label" for="end">End</label>
-          <input class="wl-input" id="end" placeholder="cog" />
-        </div>
       </div>
-      <div class="wl-field">
-        <label class="wl-label" for="words">Word list</label>
-        <input class="wl-input" id="words" placeholder="hot, dot, dog, lot, log, cog" />
-      </div>
-      <div class="wl-divider">
-        <div class="wl-divider-line"></div>
-        <span class="wl-divider-text">comma separated</span>
-        <div class="wl-divider-line"></div>
-      </div>
-      <button class="wl-btn" onclick="solve()">Solve ladder</button>
-    </div>
 
-    <div class="wl-result" id="result-box">
-      <p class="wl-result-meta" id="result-meta"></p>
-      <div id="result-path"></div>
+      <div class="wl-right" id="result-box">
+        <p class="wl-result-meta" id="result-meta"></p>
+        <div id="result-path"></div>
+      </div>
     </div>
   </div>
 
