@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Ladder</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: #f5f4f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 1rem;
+    }
+
+    .wl-root { max-width: 480px; width: 100%; }
+
+    .wl-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: #888;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .wl-title {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 2rem;
+    }
+
+    .wl-card {
+      background: #fff;
+      border: 0.5px solid #ddd;
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .wl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .wl-field { margin-bottom: 1.25rem; }
+
+    .wl-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: #666;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .wl-input {
+      width: 100%;
+      height: 40px;
+      background: #f5f4f0;
+      border: 0.5px solid #ddd;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .wl-input:focus {
+      border-color: #aaa;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+    }
+
+    .wl-divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+
+    .wl-divider-line { flex: 1; height: 0.5px; background: #e0e0e0; }
+
+    .wl-divider-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #aaa;
+      letter-spacing: 0.1em;
+    }
+
+    .wl-btn {
+      width: 100%;
+      height: 44px;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .wl-btn:hover { opacity: 0.8; }
+    .wl-btn:active { transform: scale(0.98); }
+
+    .wl-result {
+      background: #fff;
+      border: 0.5px solid #ddd;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      display: none;
+    }
+
+    .wl-result.visible { display: block; }
+
+    .wl-result-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #999;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .wl-path {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wl-word {
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+      background: #f5f4f0;
+      border: 0.5px solid #ddd;
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: #1a1a1a;
+    }
+
+    .wl-arrow { font-size: 12px; color: #bbb; }
+    .wl-empty { font-family: 'DM Mono', monospace; font-size: 13px; color: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="wl-root">
+    <p class="wl-eyebrow">COS 335</p>
+    <h1 class="wl-title">Word Ladder<br>Solver</h1>
+
+    <div class="wl-card">
+      <div class="wl-row">
+        <div class="wl-field">
+          <label class="wl-label" for="begin">Begin</label>
+          <input class="wl-input" id="begin" placeholder="hit" />
+        </div>
+        <div class="wl-field">
+          <label class="wl-label" for="end">End</label>
+          <input class="wl-input" id="end" placeholder="cog" />
+        </div>
+      </div>
+
+      <div class="wl-field">
+        <label class="wl-label" for="words">Word list</label>
+        <input class="wl-input" id="words" placeholder="hot, dot, dog, lot, log, cog" />
+      </div>
+
+      <div class="wl-divider">
+        <div class="wl-divider-line"></div>
+        <span class="wl-divider-text">comma separated</span>
+        <div class="wl-divider-line"></div>
+      </div>
+
+      <button class="wl-btn" onclick="solve()">Solve ladder</button>
+    </div>
+
+    <div class="wl-result" id="result-box">
+      <p class="wl-result-meta" id="result-meta"></p>
+      <div class="wl-path" id="result-path"></div>
+    </div>
+  </div>
+
+  <script>
+    async function solve() {
+      const begin = document.getElementById("begin").value.trim();
+      const end = document.getElementById("end").value.trim();
+      const words = document.getElementById("words").value.split(",").map(w => w.trim()).filter(Boolean);
+
+      const box = document.getElementById("result-box");
+      const meta = document.getElementById("result-meta");
+      const path = document.getElementById("result-path");
+
+      box.classList.add("visible");
+      meta.textContent = "thinking...";
+      path.innerHTML = "";
+
+      try {
+        const res = await fetch("/ladder", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ begin, end, words })
+        });
+        const data = await res.json();
+
+        if (!data.path || data.path.length === 0) {
+          meta.textContent = "no path found";
+          path.innerHTML = '<span class="wl-empty">Try a different word list.</span>';
+        } else {
+          meta.textContent = data.steps + " step" + (data.steps !== 1 ? "s" : "");
+          path.innerHTML = data.path.map((w, i) =>
+            `<span class="wl-word">${w}</span>` +
+            (i < data.path.length - 1 ? '<span class="wl-arrow">→</span>' : '')
+          ).join("");
+        }
+      } catch (e) {
+        meta.textContent = "error";
+        path.innerHTML = '<span class="wl-empty">Could not reach server.</span>';
+      }
+    }
+  </script>
+</body>
+</html>
