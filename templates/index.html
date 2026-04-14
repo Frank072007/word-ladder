@@ -4,28 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Word Ladder</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Syne:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Syne', sans-serif;
-      background: #f5f4f0;
-      color: #1a1a1a;
+      background: #1a1c22;
+      color: #f0f0f0;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
       padding: 3rem 1rem;
     }
 
-    .wl-root { max-width: 860px; width: 100%; }
+    .wl-root { max-width: 560px; width: 100%; }
 
     .wl-eyebrow {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.15em;
-      color: #1D9E75;
+      color: #E8A84A;
       text-transform: uppercase;
       margin-bottom: 6px;
     }
@@ -38,32 +37,12 @@
       margin-bottom: 2rem;
     }
 
-    .wl-layout {
-      display: flex;
-      gap: 2rem;
-      align-items: flex-start;
-    }
-
-    .wl-left {
-      flex: 1;
-      min-width: 260px;
-    }
-
-    .wl-right {
-      flex: 1;
-      min-width: 220px;
-      display: none;
-    }
-
-    .wl-right.visible { display: block; }
-
     .wl-card {
-      background: #fff;
-      border: 1.5px solid #e0e0e0;
-      border-top: 4px solid #1D9E75;
+      background: #2a2d35;
+      border: 1px solid #3a3d45;
       border-radius: 14px;
       padding: 1.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .wl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -73,7 +52,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.1em;
-      color: #1D9E75;
+      color: #E8A84A;
       text-transform: uppercase;
       display: block;
       margin-bottom: 6px;
@@ -83,31 +62,33 @@
     .wl-input {
       width: 100%;
       height: 42px;
-      background: #f5f4f0;
-      border: 1.5px solid #d0ece4;
+      background: #1e2028;
+      border: 1px solid #3a3d45;
       border-radius: 8px;
       padding: 0 12px;
       font-family: 'DM Mono', monospace;
       font-size: 14px;
-      color: #1a1a1a;
+      color: #f0f0f0;
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .wl-input:focus {
-      border-color: #1D9E75;
-      box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+      border-color: #E8A84A;
+      box-shadow: 0 0 0 3px rgba(232,168,74,0.15);
     }
 
+    .wl-input::placeholder { color: #555; }
+
     .wl-divider { display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; }
-    .wl-divider-line { flex: 1; height: 1px; background: #d0ece4; }
-    .wl-divider-text { font-family: 'DM Mono', monospace; font-size: 10px; color: #1D9E75; letter-spacing: 0.1em; opacity: 0.7; }
+    .wl-divider-line { flex: 1; height: 1px; background: #3a3d45; }
+    .wl-divider-text { font-family: 'DM Mono', monospace; font-size: 10px; color: #555; letter-spacing: 0.1em; }
 
     .wl-btn {
       width: 100%;
       height: 46px;
-      background: #1D9E75;
-      color: #fff;
+      background: #E8A84A;
+      color: #1a1c22;
       border: none;
       border-radius: 8px;
       font-family: 'Syne', sans-serif;
@@ -118,74 +99,108 @@
       transition: background 0.15s, transform 0.1s;
     }
 
-    .wl-btn:hover { background: #0F6E56; }
+    .wl-btn:hover { background: #d4943a; }
     .wl-btn:active { transform: scale(0.98); }
 
+    .wl-result { display: none; }
+    .wl-result.visible { display: block; }
+
     .wl-result-meta {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #E8A84A;
+      letter-spacing: -0.01em;
+      margin-bottom: 24px;
+    }
+
+    .wl-result-meta span {
       font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #534AB7;
+      font-size: 13px;
+      font-weight: 400;
+      color: #555;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 20px;
-      font-weight: 500;
+      margin-left: 8px;
     }
 
-    .wl-empty { font-family: 'DM Mono', monospace; font-size: 13px; color: #aaa; }
+    .wl-empty { font-family: 'DM Mono', monospace; font-size: 13px; color: #555; }
 
-    .ladder-wrap { display: flex; justify-content: center; padding: 8px 0 16px; }
+    .ladder-outer {
+      display: flex;
+      justify-content: center;
+    }
 
-    .ladder { position: relative; width: 180px; }
+    .ladder-frame {
+      display: flex;
+      align-items: stretch;
+    }
 
-    .ladder-rail-left,
-    .ladder-rail-right {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 22px;
-      border-radius: 11px;
+    .ladder-rail {
+      width: 14px;
       background: linear-gradient(to right, #b8732a, #e8a84a, #b8732a);
-    }
-
-    .ladder-rail-left  { left: 0; }
-    .ladder-rail-right { right: 0; }
-
-    .ladder-rungs { margin: 0 28px; display: flex; flex-direction: column; }
-
-    .ladder-step { display: flex; flex-direction: column; align-items: center; }
-
-    .ladder-rung {
-      width: 100%;
-      height: 14px;
       border-radius: 7px;
-      background: linear-gradient(to bottom, #e8a84a, #b8732a);
       flex-shrink: 0;
     }
 
-    .ladder-rung.word-rung { background: linear-gradient(to bottom, #f0bc60, #c8832a); }
-
-    .ladder-space { width: 100%; display: flex; align-items: center; justify-content: center; }
-
-    .ladder-word {
-      font-family: 'DM Mono', monospace;
-      font-size: 14px;
-      font-weight: 500;
-      color: #1a1a1a;
-      background: #fff;
-      border-radius: 6px;
-      padding: 4px 10px;
-      text-align: center;
-      white-space: nowrap;
+    .ladder-rail.right {
+      background: linear-gradient(to left, #b8732a, #e8a84a, #b8732a);
     }
 
-    .ladder-word.first { color: #085041; background: #E1F5EE; }
-    .ladder-word.last  { color: #26215C; background: #EEEDFE; }
+    .ladder-inner {
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
 
-    .ladder-diff { font-family: 'DM Mono', monospace; font-size: 10px; color: #aaa; letter-spacing: 0.05em; }
+    .ladder-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-    @media (max-width: 600px) {
-      .wl-layout { flex-direction: column; }
-      .wl-right { min-width: unset; }
+    .tile {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 20px;
+      font-weight: 600;
+      background: #2a2d35;
+      border: 1px solid #3a3d45;
+      color: #f0f0f0;
+    }
+
+    .tile.changed {
+      background: #E8A84A;
+      border-color: #E8A84A;
+      color: #1a1c22;
+    }
+
+    .tile.first-word {
+      background: #1D9E75;
+      border-color: #1D9E75;
+      color: #fff;
+    }
+
+    .tile.last-word {
+      background: #534AB7;
+      border-color: #534AB7;
+      color: #fff;
+    }
+
+    .ladder-rung {
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(to bottom, #e8a84a, #b8732a);
+      border-radius: 5px;
+      margin: 8px 0;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -194,131 +209,107 @@
     <p class="wl-eyebrow">COS 335</p>
     <h1 class="wl-title">Word Ladder<br>Solver</h1>
 
-    <div class="wl-layout">
-      <div class="wl-left">
-        <div class="wl-card">
-          <div class="wl-row">
-            <div class="wl-field">
-              <label class="wl-label" for="begin">Begin</label>
-              <input class="wl-input" id="begin" placeholder="hit" />
-            </div>
-            <div class="wl-field">
-              <label class="wl-label" for="end">End</label>
-              <input class="wl-input" id="end" placeholder="cog" />
-            </div>
-          </div>
-          <div class="wl-field">
-            <label class="wl-label" for="words">Word list</label>
-            <input class="wl-input" id="words" placeholder="hot, dot, dog, lot, log, cog" />
-          </div>
-          <div class="wl-divider">
-            <div class="wl-divider-line"></div>
-            <span class="wl-divider-text">comma separated</span>
-            <div class="wl-divider-line"></div>
-          </div>
-          <button class="wl-btn" onclick="solve()">Solve ladder</button>
+    <div class="wl-card">
+      <div class="wl-row">
+        <div class="wl-field">
+          <label class="wl-label" for="begin">Begin</label>
+          <input class="wl-input" id="begin" placeholder="hit" />
+        </div>
+        <div class="wl-field">
+          <label class="wl-label" for="end">End</label>
+          <input class="wl-input" id="end" placeholder="cog" />
         </div>
       </div>
+      <div class="wl-field">
+        <label class="wl-label" for="words">Word list</label>
+        <input class="wl-input" id="words" placeholder="hot, dot, dog, lot, log, cog" />
+      </div>
+      <div class="wl-divider">
+        <div class="wl-divider-line"></div>
+        <span class="wl-divider-text">comma separated</span>
+        <div class="wl-divider-line"></div>
+      </div>
+      <button class="wl-btn" onclick="solve()">Solve ladder</button>
+    </div>
 
-      <div class="wl-right" id="result-box">
-        <p class="wl-result-meta" id="result-meta"></p>
-        <div id="result-path"></div>
+    <div class="wl-result" id="result-box">
+      <p class="wl-result-meta" id="result-meta"></p>
+      <div class="ladder-outer">
+        <div class="ladder-frame">
+          <div class="ladder-rail"></div>
+          <div class="ladder-inner" id="result-path"></div>
+          <div class="ladder-rail right"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    function getDiff(a, b) {
-      let diff = [];
-      for (let i = 0; i < Math.max(a.length, b.length); i++) {
-        if (a[i] !== b[i]) diff.push((b[i] || '').toUpperCase());
-      }
-      return diff.join('');
-    }
-
     function renderLadder(path) {
       const container = document.getElementById('result-path');
       container.innerHTML = '';
-      const wrap = document.createElement('div');
-      wrap.className = 'ladder-wrap';
-      const ladder = document.createElement('div');
-      ladder.className = 'ladder';
-      const railL = document.createElement('div');
-      railL.className = 'ladder-rail-left';
-      const railR = document.createElement('div');
-      railR.className = 'ladder-rail-right';
-      const rungsCol = document.createElement('div');
-      rungsCol.className = 'ladder-rungs';
 
       path.forEach((word, i) => {
-        const step = document.createElement('div');
-        step.className = 'ladder-step';
-        const rung = document.createElement('div');
-        rung.className = 'ladder-rung word-rung';
-        const space = document.createElement('div');
-        space.className = 'ladder-space';
-        space.style.height = '48px';
-        const wordEl = document.createElement('div');
-        wordEl.className = 'ladder-word' + (i === 0 ? ' first' : i === path.length - 1 ? ' last' : '');
-        wordEl.textContent = word;
-        space.appendChild(wordEl);
-        step.appendChild(rung);
-        step.appendChild(space);
-        rungsCol.appendChild(step);
+        const prev = path[i - 1] || null;
+        const letters = word.split('');
+        const isFirst = i === 0;
+        const isLast = i === path.length - 1;
 
-        /*if (i < path.length - 1) {
-          const diffStep = document.createElement('div');
-          diffStep.className = 'ladder-step';
-          const plainRung = document.createElement('div');
-          plainRung.className = 'ladder-rung';
-          const diffSpace = document.createElement('div');
-          diffSpace.className = 'ladder-space';
-          diffSpace.style.height = '28px';
-          const diffEl = document.createElement('span');
-          diffEl.className = 'ladder-diff';
-          diffEl.textContent = '→ ' + getDiff(word, path[i+1]);
-          diffSpace.appendChild(diffEl);
-          diffStep.appendChild(plainRung);
-          diffStep.appendChild(diffSpace);
-          rungsCol.appendChild(diffStep);
-        }*/
+        const row = document.createElement('div');
+        row.className = 'ladder-row';
+
+        letters.forEach((letter, j) => {
+          const tile = document.createElement('div');
+          const isChanged = prev && prev[j] !== letter;
+          tile.className = 'tile' + (isFirst ? ' first-word' : isLast ? ' last-word' : isChanged ? ' changed' : '');
+          tile.textContent = letter.toUpperCase();
+          row.appendChild(tile);
+        });
+
+        container.appendChild(row);
+
+        if (i < path.length - 1) {
+          const rung = document.createElement('div');
+          rung.className = 'ladder-rung';
+          container.appendChild(rung);
+        }
       });
+    }
 
-      const bottomRung = document.createElement('div');
-      bottomRung.className = 'ladder-step';
-      const br = document.createElement('div');
-      br.className = 'ladder-rung';
-      bottomRung.appendChild(br);
-      rungsCol.appendChild(bottomRung);
-
-      ladder.appendChild(railL);
-      ladder.appendChild(rungsCol);
-      ladder.appendChild(railR);
-      wrap.appendChild(ladder);
-      container.appendChild(wrap);
+    function setMeta(steps) {
+      const meta = document.getElementById('result-meta');
+      meta.innerHTML = steps + ' <span>step' + (steps !== 1 ? 's' : '') + '</span>';
     }
 
     async function solve() {
-      const begin = document.getElementById("begin").value.trim();
-      const end = document.getElementById("end").value.trim();
-      const words = document.getElementById("words").value.split(",").map(w => w.trim()).filter(Boolean);
+      const begin = document.getElementById("begin").value.trim().toLowerCase();
+      const end = document.getElementById("end").value.trim().toLowerCase();
+      const words = document.getElementById("words").value
+        .split(",")
+        .map(w => w.trim().toLowerCase())
+        .filter(Boolean);
+
       const box = document.getElementById("result-box");
-      const meta = document.getElementById("result-meta");
       box.classList.add("visible");
-      meta.textContent = "thinking...";
+      setMeta('...');
       document.getElementById("result-path").innerHTML = "";
+
       try {
-        const res = await fetch("/ladder", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ begin, end, words }) });
+        const res = await fetch("/ladder", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ begin, end, words })
+        });
         const data = await res.json();
         if (!data.path || data.path.length === 0) {
-          meta.textContent = "no path found";
+          document.getElementById('result-meta').innerHTML = 'No path found';
           document.getElementById("result-path").innerHTML = '<span class="wl-empty">Try a different word list.</span>';
         } else {
-          meta.textContent = data.steps + " step" + (data.steps !== 1 ? "s" : "");
+          setMeta(data.steps);
           renderLadder(data.path);
         }
       } catch (e) {
-        meta.textContent = "error";
+        document.getElementById('result-meta').innerHTML = 'Error';
         document.getElementById("result-path").innerHTML = '<span class="wl-empty">Could not reach server.</span>';
       }
     }
