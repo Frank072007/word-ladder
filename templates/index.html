@@ -116,7 +116,31 @@
 
     .wl-empty { font-family: 'DM Mono', monospace; font-size: 13px; color: #555; }
 
-    .ladder-grid {
+    /* Ladder wrapper */
+    .ladder-outer {
+      display: flex;
+      justify-content: center;
+    }
+
+    .ladder-frame {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .ladder-rail {
+      width: 14px;
+      background: linear-gradient(to right, #b8732a, #e8a84a, #b8732a);
+      border-radius: 7px;
+      flex-shrink: 0;
+    }
+
+    .ladder-rail.right {
+      background: linear-gradient(to left, #b8732a, #e8a84a, #b8732a);
+    }
+
+    .ladder-inner {
+      padding: 12px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -212,7 +236,13 @@
 
     <div class="wl-result" id="result-box">
       <p class="wl-result-meta" id="result-meta"></p>
-      <div class="ladder-grid" id="result-path"></div>
+      <div class="ladder-outer">
+        <div class="ladder-frame">
+          <div class="ladder-rail"></div>
+          <div class="ladder-inner" id="result-path"></div>
+          <div class="ladder-rail right"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -257,14 +287,20 @@
     }
 
     async function solve() {
-      const begin = document.getElementById("begin").value.trim();
-      const end = document.getElementById("end").value.trim();
-      const words = document.getElementById("words").value.split(",").map(w => w.trim()).filter(Boolean);
+      // lowercase conversion happens here
+      const begin = document.getElementById("begin").value.trim().toLowerCase();
+      const end = document.getElementById("end").value.trim().toLowerCase();
+      const words = document.getElementById("words").value
+        .split(",")
+        .map(w => w.trim().toLowerCase())
+        .filter(Boolean);
+
       const box = document.getElementById("result-box");
       const meta = document.getElementById("result-meta");
       box.classList.add("visible");
       meta.textContent = "thinking...";
       document.getElementById("result-path").innerHTML = "";
+
       try {
         const res = await fetch("/ladder", {
           method: "POST",
